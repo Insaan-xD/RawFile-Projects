@@ -7,44 +7,37 @@ echo "██ ██ ██  ██ ███████ ███████ �
 echo "██ ██  ██ ██      ██ ██   ██ ██   ██ ██  ██ ██"
 echo "██ ██   ████ ███████ ██   ██ ██   ██ ██   ████"
 echo ""
-echo "1) Internet Fix + Firefox Install"
-echo "2) Install XRDP + XFCE Desktop (Full Setup)"
-echo "3) Exit"
+echo "1) Fix Internet + Install Firefox"
+echo "2) Install XRDP + XFCE Desktop"
+echo "3) Playit Setup"
+echo "4) Exit"
 echo ""
 
 read -p "Select Option: " opt
 
-# ---------------------------
-# OPTION 1 
-# ---------------------------
+# ------------------ OPTION 1 ------------------
 if [ "$opt" == "1" ]; then
     echo "[+] Fixing DNS..."
     sudo bash -c 'echo "nameserver 8.8.8.8" > /etc/resolv.conf'
-    sudo bash -c 'echo "nameserver 1.1.1.1" >> /etc/resolv.conf'
 
     echo "[+] Updating system..."
     sudo apt update -y
 
     echo "[+] Installing Firefox..."
-    sudo apt install firefox-esr -y
+    sudo apt install -y firefox-esr
 
-    echo ""
-    echo "✔ Internet Fix OK"
-    echo "✔ Firefox Install OK"
+    echo "✓ Internet Fix + Firefox Installation Complete!"
     exit
 fi
 
-# ---------------------------
-# OPTION 2 
-# ---------------------------
+# ------------------ OPTION 2 ------------------
 if [ "$opt" == "2" ]; then
-    echo "[+] Updating packages..."
-    sudo apt update && sudo apt upgrade -y
+    echo "[+] Updating system..."
+    sudo apt update -y && sudo apt upgrade -y
 
     echo "[+] Installing XFCE + XRDP..."
-    sudo apt install xfce4 xfce4-goodies xrdp -y
+    sudo apt install -y xfce4 xfce4-goodies xrdp
 
-    echo "[+] Setting session..."
     echo "startxfce4" > ~/.xsession
     sudo chown $(whoami):$(whoami) ~/.xsession
 
@@ -52,17 +45,44 @@ if [ "$opt" == "2" ]; then
     sudo systemctl enable xrdp
     sudo systemctl restart xrdp
 
-    echo ""
-    echo "✔ XRDP Install OK"
-    echo "✔ XFCE Ready"
-    echo "✔ RDP Ready to Connect"
+    echo "✓ XRDP + XFCE Installed Successfully!"
     exit
 fi
 
-# ---------------------------
-# OPTION 3 - EXIT
-# ---------------------------
+# ------------------ OPTION 3 ------------------
 if [ "$opt" == "3" ]; then
+    set -e
+
+    echo "[+] Updating system..."
+    sudo apt update -y && sudo apt upgrade -y
+
+    echo "[+] Installing dependencies..."
+    sudo apt install -y curl gpg
+
+    echo "[+] Adding Playit repo..."
+    curl -fsSL https://playit-cloud.github.io/ppa/key.gpg | \
+      gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
+
+    echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | \
+      sudo tee /etc/apt/sources.list.d/playit-cloud.list
+
+    sudo apt update -y
+
+    echo "[+] Installing Playit..."
+    sudo apt install -y playit
+
+    echo "[+] Enabling Playit service..."
+    sudo systemctl enable --now playit
+
+    echo "[+] Running Playit setup..."
+    playit setup
+
+    echo "✓ Playit Setup Complete!"
+    exit
+fi
+
+# ------------------ OPTION 4 ------------------
+if [ "$opt" == "4" ]; then
     echo "Exiting..."
     exit
 fi
