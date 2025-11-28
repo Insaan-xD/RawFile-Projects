@@ -1,0 +1,70 @@
+#!/bin/bash
+
+clear
+echo "██ ███    ██ ███████  █████   █████  ███    ██"
+echo "██ ████   ██ ██      ██   ██ ██   ██ ████   ██"
+echo "██ ██ ██  ██ ███████ ███████ ███████ ██ ██  ██"
+echo "██ ██  ██ ██      ██ ██   ██ ██   ██ ██  ██ ██"
+echo "██ ██   ████ ███████ ██   ██ ██   ██ ██   ████"
+echo ""
+echo "1) Internet Fix + Firefox Install"
+echo "2) Install XRDP + XFCE Desktop (Full Setup)"
+echo "3) Exit"
+echo ""
+
+read -p "Select Option: " opt
+
+# ---------------------------
+# OPTION 1 
+# ---------------------------
+if [ "$opt" == "1" ]; then
+    echo "[+] Fixing DNS..."
+    sudo bash -c 'echo "nameserver 8.8.8.8" > /etc/resolv.conf'
+    sudo bash -c 'echo "nameserver 1.1.1.1" >> /etc/resolv.conf'
+
+    echo "[+] Updating system..."
+    sudo apt update -y
+
+    echo "[+] Installing Firefox..."
+    sudo apt install firefox-esr -y
+
+    echo ""
+    echo "✔ Internet Fix OK"
+    echo "✔ Firefox Install OK"
+    exit
+fi
+
+# ---------------------------
+# OPTION 2 
+# ---------------------------
+if [ "$opt" == "2" ]; then
+    echo "[+] Updating packages..."
+    sudo apt update && sudo apt upgrade -y
+
+    echo "[+] Installing XFCE + XRDP..."
+    sudo apt install xfce4 xfce4-goodies xrdp -y
+
+    echo "[+] Setting session..."
+    echo "startxfce4" > ~/.xsession
+    sudo chown $(whoami):$(whoami) ~/.xsession
+
+    echo "[+] Enabling XRDP..."
+    sudo systemctl enable xrdp
+    sudo systemctl restart xrdp
+
+    echo ""
+    echo "✔ XRDP Install OK"
+    echo "✔ XFCE Ready"
+    echo "✔ RDP Ready to Connect"
+    exit
+fi
+
+# ---------------------------
+# OPTION 3 - EXIT
+# ---------------------------
+if [ "$opt" == "3" ]; then
+    echo "Exiting..."
+    exit
+fi
+
+echo "Invalid Option!"
