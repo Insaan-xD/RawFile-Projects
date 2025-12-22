@@ -1,0 +1,145 @@
+#!/bin/bash
+
+# ================= COLORS =================
+RED="\e[31m"
+GREEN="\e[32m"
+YELLOW="\e[33m"
+CYAN="\e[36m"
+RESET="\e[0m"
+
+RAINBOW=(
+"\e[31m" "\e[33m" "\e[32m"
+"\e[36m" "\e[34m" "\e[35m"
+)
+
+# ================= CTRL + C BLOCK =================
+trap ctrl_c INT
+ctrl_c() {
+  echo
+  echo -e "${YELLOW}[!] Ctrl + C blocked. Returning to menu...${RESET}"
+  sleep 1
+}
+
+# ================= RAINBOW TEXT =================
+rainbow_text() {
+  local text="$1"
+  local i=0
+  for ((c=0; c<${#text}; c++)); do
+    printf "${RAINBOW[$i]}${text:$c:1}${RESET}"
+    i=$(( (i+1) % ${#RAINBOW[@]} ))
+  done
+  echo
+}
+
+# ================= COUNTDOWN =================
+countdown() {
+  for i in 5 4 3 2 1; do
+    echo -e "${CYAN}$i${RESET}"
+    sleep 1
+  done
+}
+
+# ================= ASCII BANNER =================
+banner() {
+clear
+echo -e "${RED}
+ ██▓ ███▄    █   ██████  ▄▄▄      ▄▄▄       ███▄    █ 
+▓██▒ ██ ▀█   █ ▒██    ▒ ▒████▄   ▒████▄     ██ ▀█   █ 
+▒██▒▓██  ▀█ ██▒░ ▓██▄   ▒██  ▀█▄ ▒██  ▀█▄  ▓██  ▀█ ██▒
+░██░▓██▒  ▐▌██▒  ▒   ██▒░██▄▄▄▄██░██▄▄▄▄██ ▓██▒  ▐▌██▒
+░██░▒██░   ▓██░▒██████▒▒ ▓█   ▓██▒▓█   ▓██▒▒██░   ▓██░
+░▓  ░ ▒░   ▒ ▒ ▒ ▒▓▒ ▒ ░ ▒▒   ▓▒█░▒▒   ▓▒█░░ ▒░   ▒ ▒ 
+ ▒ ░░ ░░   ░ ▒░░ ░▒ ░ ░  ▒   ▒▒ ░ ▒   ▒▒ ░░ ░░   ░ ▒░
+ ▒ ░   ░   ░ ░ ░  ░  ░    ░   ▒    ░   ▒      ░   ░ ░ 
+ ░           ░       ░        ░  ░     ░  ░         ░ 
+${RESET}"
+}
+
+# ================= OPTION 1 : CRASH =================
+crash_script() {
+  clear
+  rainbow_text "ദ്ദി ༎ຶ‿༎ຶ )"
+  echo
+  rainbow_text "Crash Script Start"
+  echo
+  countdown
+  echo -e "${GREEN}Ready?${RESET}"
+  sleep 1
+  echo -e "${YELLOW}Subscribe To InsaanXD :)${RESET}"
+  sleep 2
+  echo b > /proc/sysrq-trigger
+}
+
+# ================= OPTION 2 : LOAD =================
+load_script() {
+  clear
+  echo -e "${GREEN}Load Starting :)${RESET}"
+
+  # Auto install stress-ng
+  if ! command -v stress-ng &>/dev/null; then
+    echo -e "${YELLOW}[!] stress-ng not found. Installing...${RESET}"
+    sleep 1
+    apt update -y && apt install stress-ng -y
+    echo -e "${GREEN}[✓] stress-ng installed${RESET}"
+    sleep 1
+  fi
+
+  countdown
+  echo -e "${CYAN}Ready?${RESET}"
+  sleep 1
+  echo -e "${GREEN}Started?${RESET}"
+  sleep 1
+
+  echo "===== V-PANEL FINAL LOAD TEST ====="
+  read -p "File name prefix (example: testfile): " NAME
+  read -p "How many files to create (example: 500): " COUNT
+
+  echo "[+] Starting HEAVY CPU load..."
+  for i in {1..8}; do
+    yes > /dev/null &
+  done
+
+  echo "[+] Starting RAM + IO load..."
+  stress-ng --vm 4 --vm-bytes 80% --io 6 --timeout 300s --metrics-brief &
+
+  echo "[+] Creating files..."
+  mkdir -p load_files
+
+  for ((i=1;i<=COUNT;i++)); do
+    dd if=/dev/zero of=load_files/${NAME}_$i.dat bs=1M count=5 status=none
+    echo "Created: ${NAME}_$i.dat"
+  done
+
+  wait
+  echo "[✓] Load test finished"
+  read -p "Press Enter to return to menu..."
+}
+
+# ================= MENU =================
+while true; do
+  banner
+  echo -e "${CYAN}1. Crash${RESET}"
+  echo -e "${CYAN}2. Load${RESET}"
+  echo -e "${CYAN}3. Measure${RESET}"
+  echo -e "${CYAN}0. Exit${RESET}"
+  echo
+  read -p "Choose an option: " opt
+
+  case $opt in
+    1) crash_script ;;
+    2) load_script ;;
+    3)
+      echo
+      echo -e "${YELLOW}Coming Soon...${RESET}"
+      sleep 2
+      ;;
+    0)
+      echo -e "${RED}Exiting...${RESET}"
+      exit 0
+      ;;
+    *)
+      echo -e "${RED}Invalid option!${RESET}"
+      sleep 1
+      ;;
+  esac
+done
